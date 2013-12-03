@@ -16,6 +16,7 @@
 package akarnokd.opengl.experiment;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -170,6 +171,52 @@ public class ShaderProgram {
      * Set the value of an uniform shader variable.
      * @param name
      * @param x
+     * @param y
+     * @param z
+     */
+    public void setUniformf(String name, float x, float y, float z) {
+         int index = findUniform(name);
+         glUniform3fARB(index, x, y, z);
+    }
+    /**
+     * Set the value of an uniform shader variable.
+     * @param name
+     * @param x
+     * @param y
+     * @param z
+     */
+    public void setUniformi(String name, int x, int y, int z) {
+         int index = findUniform(name);
+         glUniform3iARB(index, x, y, z);
+    }
+    /**
+     * Set the value of an uniform shader variable.
+     * @param name
+     * @param x
+     * @param y
+     * @param z
+     * @param w
+     */
+    public void setUniformf(String name, float x, float y, float z, float w) {
+         int index = findUniform(name);
+         glUniform4fARB(index, x, y, z, w);
+    }
+    /**
+     * Set the value of an uniform shader variable.
+     * @param name
+     * @param x
+     * @param y
+     * @param z
+     * @param w
+     */
+    public void setUniformi(String name, int x, int y, int z, int w) {
+         int index = findUniform(name);
+         glUniform4iARB(index, x, y, z, w);
+    }
+    /**
+     * Set the value of an uniform shader variable.
+     * @param name
+     * @param x
      */
     public void setUniformf(String name, float x) {
          int index = findUniform(name);
@@ -196,5 +243,29 @@ public class ShaderProgram {
         mat.store(b16);
         b16.flip();
         glUniformMatrix4ARB(index, transposed, b16);
+    }
+    /**
+     * Set an array of values.
+     * @param name
+     * @param array 
+     */
+    public void setUniformi(String name, int[] array) {
+        int index = findUniform(name);
+        IntBuffer ib = BufferUtils.createIntBuffer(array.length);
+        ib.put(array);
+        ib.rewind();
+        glUniform1ARB(index, ib);
+    }
+    /**
+     * Set an array of values.
+     * @param name
+     * @param array 
+     */
+    public void setUniformf(String name, float[] array) {
+        int index = findUniform(name);
+        FloatBuffer fb = BufferUtils.createFloatBuffer(array.length);
+        fb.put(array);
+        fb.rewind();
+        glUniform1ARB(index, fb);
     }
 }

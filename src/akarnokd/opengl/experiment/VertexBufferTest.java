@@ -37,6 +37,23 @@ public class VertexBufferTest {
         buffer.put(0).put(0).put(1);
         
         buffer.flip();
+        
+        StaticTriangleVBO vbo2 = new StaticTriangleVBO();
+        vbo2.addVertex3f(100, 100, 0);
+        vbo2.addColor3f(1, 0, 0);
+        vbo2.addVertex3f(200, 100, 0);
+        vbo2.addColor3f(0, 1, 0);
+        vbo2.addVertex3f(200, 200, 0);
+        vbo2.addColor3f(0, 0, 1);
+
+        vbo2.addVertex3f(90, 100, 0);
+        vbo2.addColor3f(1, 0, 0);
+        vbo2.addVertex3f(90, 200, 0);
+        vbo2.addColor3f(0, 1, 0);
+        vbo2.addVertex3f(190, 200, 0);
+        vbo2.addColor3f(0, 0, 1);
+
+        vbo2.build();
 
         int vbo = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -60,8 +77,11 @@ public class VertexBufferTest {
             glDisableClientState(GL_COLOR_ARRAY);
             glDisableClientState(GL_VERTEX_ARRAY);
             
+            vbo2.draw();
+            
         }, () -> {
             glDeleteBuffers(vbo);
+            vbo2.close();
         });
     }
 }
