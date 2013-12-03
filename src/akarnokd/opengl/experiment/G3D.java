@@ -1,0 +1,85 @@
+/**
+ * Copyright 2013 David Karnok
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package akarnokd.opengl.experiment;
+
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
+import static org.lwjgl.opengl.GL11.*;
+import org.lwjgl.util.glu.GLU;
+
+/**
+ * Utility class to run a 3D OpenGL routine.
+ */
+public final class G3D {
+    /**
+     * Initialize a windowed display with the given dimensions and default field-of-view.
+     * @param w
+     * @param h 
+     */
+    public static void init(int w, int h) {
+        init(w, h, 45);
+    }
+    /**
+     * Initialize a windowed display with the given dimensions and field-of-view.
+     * @param w
+     * @param h
+     * @param fow 
+     */
+    public static void init(int w, int h, float fow) {
+        try {
+            Display.setDisplayMode(new DisplayMode(w, h));
+            Display.setTitle("Basic shader example");
+            Display.create();
+            
+        } catch (LWJGLException ex) {
+            throw new RuntimeException(ex);
+        }
+        
+        glViewport(0, 0, w, h);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        GLU.gluPerspective(45, (1f * w / h), 0.1f, 100f);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glShadeModel(GL_SMOOTH);
+        glClearColor(0, 0, 0, 0);
+        glClearDepth(1);
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    }
+    /**
+     * Run a rendering loop.
+     * @param fps the frames per second
+     * @param body the body to execute
+     */
+    public static void loop(int fps, Runnable body) {
+        try {
+            while (!Display.isCloseRequested()) {
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                glLoadIdentity();
+
+                body.run();
+
+                Display.update();
+                Display.sync(fps);
+            }
+        } finally {
+            Display.destroy();
+        }
+    }
+}

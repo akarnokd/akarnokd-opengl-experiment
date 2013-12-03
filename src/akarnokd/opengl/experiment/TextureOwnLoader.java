@@ -16,18 +16,14 @@
 package akarnokd.opengl.experiment;
 
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.List;
 import javax.imageio.ImageIO;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.font.effects.ColorEffect;
@@ -37,55 +33,6 @@ import org.newdawn.slick.opengl.TextureImpl;
  *
  */
 public class TextureOwnLoader {
-    public static int power2Up(int v) {
-        v--;
-        v |= v >> 1;
-        v |= v >> 2;
-        v |= v >> 4;
-        v |= v >> 8;
-        v |= v >> 16;
-        v++;
-        return v;
-    }
-    public static int loadTexture(BufferedImage img0) {
-        BufferedImage img = img0;
-        
-        int w0 = power2Up(img0.getWidth());
-        int h0 = power2Up(img0.getHeight());
-        
-        // expand texture to power of 2 size, otherwise it would be stretched
-        if (w0 != img0.getWidth() || h0 != img.getHeight()) {
-            img = new BufferedImage(w0, h0, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2 = img.createGraphics();
-            g2.drawImage(img0, 0, 0, null);
-            g2.dispose();
-        }
-        
-        int[] pixels = new int[img.getWidth() * img.getHeight()];
-        img.getRGB(0, 0, img.getWidth(), img.getHeight(), pixels, 0, img.getWidth());
-        ByteBuffer buffer = BufferUtils.createByteBuffer(img.getWidth() * img.getHeight() * 4);
-
-        for (int px : pixels) {
-            buffer.put((byte)((px >> 16) & 0xFF));
-            buffer.put((byte)((px >> 8) & 0xFF));
-            buffer.put((byte)((px) & 0xFF));
-            buffer.put((byte)((px >> 24) & 0xFF));
-        }
-        buffer.flip();
-        
-        int id = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, id);
-        
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.getWidth(), img.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-        
-        return id;
-    }
     public static void main(String[] args) throws Exception {
         Display.setDisplayMode(new DisplayMode(800, 600));
         Display.create();
@@ -114,9 +61,8 @@ public class TextureOwnLoader {
 
         BufferedImage img0 = ImageIO.read(new File("res/colony_hub.png"));
 
-        int texture = loadTexture(img0);
+        Texture texture = Texture.fromImage(img0);
 
-        TextureImpl.bindNone();
         
         Font awtfont = new Font("Times New Roman", Font.BOLD, 24);
         
@@ -162,8 +108,6 @@ public class TextureOwnLoader {
             
             glColor4f(1, 1, 1, 1);
 
-            glBindTexture(GL_TEXTURE_2D, texture);
-            
             float corrx = 0;
             float corry = 0;
             
@@ -182,19 +126,21 @@ public class TextureOwnLoader {
                 corry = 0.5f / th;
             }
             
-            glBegin(GL_QUADS);
-                glTexCoord2f(0, 0);
-                glVertex2f(x0, y0);
-                glTexCoord2f(1 - corrx, 0);
-                glVertex2f(x0 + tw, y0);
-                glTexCoord2f(1 - corrx, 1 - corry);
-                glVertex2f(x0 + tw, y0 + th);
-                glTexCoord2f(0, 1 - corry);
-                glVertex2f(x0, y0 + th);
-            
-            glEnd();
 
-            glBindTexture(GL_TEXTURE_2D, 0);
+            texture.draw(x0, y0);
+            texture.drawSubimage(x0 + 400, y0, 100, 100, 100, 100);
+            
+//            glBegin(GL_QUADS);
+//                glTexCoord2f(0, 0);
+//                glVertex2f(x0, y0);
+//                glTexCoord2f(1 - corrx, 0);
+//                glVertex2f(x0 + tw, y0);
+//                glTexCoord2f(1 - corrx, 1 - corry);
+//                glVertex2f(x0 + tw, y0 + th);
+//                glTexCoord2f(0, 1 - corry);
+//                glVertex2f(x0, y0 + th);
+//            glEnd();
+
 
             glColor4f(1, 1, 1, 1);
             glLineWidth(1);
@@ -220,7 +166,7 @@ public class TextureOwnLoader {
             Display.sync(30);
         }
 
-        glDeleteTextures(texture);
+        texture.close();
         
         Display.destroy();
     }

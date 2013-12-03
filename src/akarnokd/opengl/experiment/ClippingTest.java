@@ -87,30 +87,7 @@ public class ClippingTest {
         return id;
     }
     public static void main(String[] args) throws Exception {
-        Display.setDisplayMode(new DisplayMode(800, 600));
-        Display.create();
-
-        
-        glEnable(GL_TEXTURE_2D);
-        glShadeModel(GL_SMOOTH);
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_LIGHTING);
-        
-        
-        glClearColor(0, 0, 0, 0);
-        glClearDepth(1);
-        
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        
-        glViewport(0, 0, 800, 600);
-        glMatrixMode(GL_MODELVIEW);
-        
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0, 800, 600, 0, 1, -1);
-        glMatrixMode(GL_MODELVIEW);
-        
+        G2D.init(800, 600);
 
         BufferedImage img0 = ImageIO.read(new File("res/colony_hub.png"));
 
@@ -205,26 +182,14 @@ public class ClippingTest {
 
                 glColor4f(1, 1, 1, 1);
                 glLineWidth(1);
-                glTranslatef(0.5f, 0.5f, 0); // otherwise, the lines don't join cleanly.
-                glBegin(GL_LINE_STRIP);
-                    glVertex2i(x0, y0);
-                    glVertex2i(x0, y0 + ih);
-                    glVertex2i(x0 + iw, y0 + ih);
-                    glVertex2i(x0 + iw, y0);
-                    glVertex2i(x0, y0);
-                glEnd();
-                glTranslatef(-0.5f, -0.5f, 0);
+                G2D.drawRect(x0, y0, iw, ih);
                 if (texframe) {
                     glColor4f(0.5f, 0.5f, 1, 1);
-                    glBegin(GL_LINE_STRIP);
-                        glVertex2f(x0, y0);
-                        glVertex2f(x0 + tw, y0);
-                        glVertex2f(x0 + tw, y0 + th);
-                        glVertex2f(x0, y0 + th);
-                        glVertex2f(x0, y0);
-                    glEnd();
+                    G2D.drawRect(x0, y0, tw, th);
                 }
             });
+
+            G2D.fillRect(x0, y0 + 330, 10, 10);
             
             Display.update();
             Display.sync(30);

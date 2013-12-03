@@ -15,12 +15,83 @@
  */
 package akarnokd.opengl.experiment;
 
+import java.util.Objects;
+import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
 /**
  * Utility lambdas for rendering with LWJGL.
  */
 public final class G2D {
+   /**
+     * Initialize a windowed display with the given dimensions and default field-of-view.
+     * @param w
+     * @param h 
+     */
+    public static void init(int w, int h) {
+        try {
+            Display.setDisplayMode(new DisplayMode(w, h));
+            Display.setTitle("Basic shader example");
+            Display.create();
+            
+        } catch (LWJGLException ex) {
+            throw new RuntimeException(ex);
+        }
+        glEnable(GL_TEXTURE_2D);
+        glShadeModel(GL_SMOOTH);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_LIGHTING);
+        
+        
+        glClearColor(0, 0, 0, 0);
+        glClearDepth(1);
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        glViewport(0, 0, w, h);
+        glMatrixMode(GL_MODELVIEW);
+        
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0, w, h, 0, 1, -1);
+        glMatrixMode(GL_MODELVIEW);
+    }    
+    /**
+     * Run a rendering loop.
+     * @param fps the frames per second
+     * @param body the body to execute
+     */
+    public static void loop(int fps, Runnable body) {
+        loop(fps, body, () -> { });
+    }
+    /**
+     * Run a rendering loop with the cleanup afterwards.
+     * @param fps the frames per second
+     * @param body the body to execute
+     * @param cleanup the cleanup to execute
+     */
+    public static void loop(int fps, Runnable body, Runnable cleanup) {
+        Objects.requireNonNull(body);
+        Objects.requireNonNull(cleanup);
+        try {
+            while (!Display.isCloseRequested()) {
+                glClear(GL_COLOR_BUFFER_BIT);
+
+                body.run();
+
+                Display.update();
+                Display.sync(fps);
+            }
+        } finally {
+            try {
+                cleanup.run();
+            } finally {
+                Display.destroy();
+            }
+        }
+    }
     /**
      * Execute the code while the given clipping region is defined.
      * Assumes top-down viewport.
@@ -42,5 +113,38 @@ public final class G2D {
         } finally {
             glDisable(GL_SCISSOR_TEST);
         }
+    }
+    /**
+     * Draw an unfilled rectangle with the current color settings.
+     * @param x
+     * @param y
+     * @param width
+     * @param height 
+     */
+    public static void drawRect(int x, int y, int width, int height) {
+        glTranslatef(0.5f, 0.5f, 0); // otherwise, the lines don't join cleanly.
+        glBegin(GL_LINE_STRIP);
+            glVertex2i(x, y);
+            glVertex2i(x + width - 1, y);
+            glVertex2i(x + width - 1, y + height - 1);
+            glVertex2i(x, y + height - 1);
+            glVertex2i(x, y);
+        glEnd();
+        glTranslatef(-0.5f, -0.5f, 0);
+    }
+    /**
+     * Draw a filled rectangle with the current color and texture settings.
+     * @param x
+     * @param y
+     * @param width
+     * @param height 
+     */
+    public static void fillRect(int x, int y, int width, int height) {
+        glBegin(GL_QUADS);
+            glVertex2i(x, y);
+            glVertex2i(x + width - 1, y);
+            glVertex2i(x + width - 1, y + height - 1);
+            glVertex2i(x, y + height - 1);
+        glEnd();
     }
 }
