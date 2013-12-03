@@ -16,6 +16,7 @@
 package akarnokd.opengl.experiment;
 
 import java.util.Objects;
+import java.util.concurrent.CancellationException;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -92,6 +93,8 @@ public final class G3D {
                 Display.update();
                 Display.sync(fps);
             }
+        } catch (CancellationException ex) {
+            // ignored
         } finally {
             try {
                 cleanup.run();

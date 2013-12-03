@@ -61,13 +61,15 @@ public class ShaderProgram {
                 
                 glLinkProgramARB(sp.program);
                 if (glGetObjectParameteriARB(sp.program, GL_OBJECT_LINK_STATUS_ARB) == GL11.GL_FALSE) {
+                    String err = getLogInfo(sp.program);
                     sp.close();
-                    throw new RuntimeException("Program failed: " + getLogInfo(sp.program));
+                    throw new RuntimeException("Program failed: " + err);
                 }
                 glValidateProgramARB(sp.program);
                 if (glGetObjectParameteriARB(sp.program, GL_OBJECT_VALIDATE_STATUS_ARB) == GL11.GL_FALSE) {
+                    String err = getLogInfo(sp.program);
                     sp.close();
-                    throw new RuntimeException("Program failed: " + getLogInfo(sp.program));
+                    throw new RuntimeException("Program failed: " + err);
                 }
             } else {
                 sp.close();
@@ -121,14 +123,16 @@ public class ShaderProgram {
         glCompileShaderARB(sid);
         
         if (glGetObjectParameteriARB(sid, GL_OBJECT_COMPILE_STATUS_ARB) == GL11.GL_FALSE) {
+            String err = getLogInfo(sid);
             glDeleteObjectARB(sid);
-            throw new RuntimeException("Error creating shader: " + getLogInfo(sid));
+            throw new RuntimeException("Error creating shader: " + err);
         }
         return sid;
     }
     /** Return the log info. */
     static String getLogInfo(int obj) {
-        return glGetInfoLogARB(obj, glGetObjectParameteriARB(obj, GL_OBJECT_INFO_LOG_LENGTH_ARB));
+        int len = glGetObjectParameteriARB(obj, GL_OBJECT_INFO_LOG_LENGTH_ARB);
+        return glGetInfoLogARB(obj, len);
     }
     /**
      * Locate an uniform variable.
