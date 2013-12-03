@@ -15,6 +15,7 @@
  */
 package akarnokd.opengl.experiment;
 
+import java.util.Objects;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -25,6 +26,8 @@ import org.lwjgl.util.glu.GLU;
  * Utility class to run a 3D OpenGL routine.
  */
 public final class G3D {
+    /** Utility class. */
+    private G3D() { throw new IllegalStateException("No instances!"); }
     /**
      * Initialize a windowed display with the given dimensions and default field-of-view.
      * @param w
@@ -68,6 +71,17 @@ public final class G3D {
      * @param body the body to execute
      */
     public static void loop(int fps, Runnable body) {
+        loop(fps, body, () -> { });
+    }
+    /**
+     * Run a rendering loop with the cleanup afterwards.
+     * @param fps the frames per second
+     * @param body the body to execute
+     * @param cleanup the cleanup to execute
+     */
+    public static void loop(int fps, Runnable body, Runnable cleanup) {
+        Objects.requireNonNull(body);
+        Objects.requireNonNull(cleanup);
         try {
             while (!Display.isCloseRequested()) {
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -79,7 +93,11 @@ public final class G3D {
                 Display.sync(fps);
             }
         } finally {
-            Display.destroy();
+            try {
+                cleanup.run();
+            } finally {
+                Display.destroy();
+            }
         }
     }
 }

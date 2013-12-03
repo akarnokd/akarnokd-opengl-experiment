@@ -24,6 +24,8 @@ import static org.lwjgl.opengl.GL11.*;
  * Utility lambdas for rendering with LWJGL.
  */
 public final class G2D {
+    /** Utility class. */
+    private G2D() { throw new IllegalStateException("No instances!"); }
    /**
      * Initialize a windowed display with the given dimensions and default field-of-view.
      * @param w
