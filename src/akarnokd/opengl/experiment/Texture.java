@@ -123,6 +123,49 @@ public class Texture {
     }
     /**
      * Loads a texture from the given file.
+     * @param path
+     * @param powerOf2
+     * @return 
+     */
+    public static Texture fromFile(String path, boolean powerOf2) {
+        try {
+            return fromImage(ImageIO.read(new File(path)), powerOf2, false, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+        /**
+     * Loads a texture from the given file.
+     * @param path
+     * @param powerOf2
+     * @param mirrorX
+     * @return 
+     */
+    public static Texture fromFile(String path, boolean powerOf2, boolean mirrorX) {
+        try {
+            return fromImage(ImageIO.read(new File(path)), powerOf2, mirrorX, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    /**
+     * Loads a texture from the given file.
+     * @param path
+     * @param powerOf2
+     * @param mirrorX mirror in the X direction?
+     * @param wrapMode GL_CLAMP, GL_REPEAT, GL_CLAMP_TO_EDGE
+     * @param filterMode GL_NEAREST, GL_LINEAR
+     * @return 
+     */
+    public static Texture fromFile(String path, boolean powerOf2, boolean mirrorX, int wrapMode, int filterMode) {
+        try {
+            return fromImage(ImageIO.read(new File(path)), powerOf2, mirrorX, wrapMode, filterMode);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    /**
+     * Loads a texture from the given file.
      * @param file
      * @return 
      */
@@ -139,14 +182,44 @@ public class Texture {
      * @return 
      */
     public static Texture fromImage(BufferedImage sourceImage) {
+        return fromImage(sourceImage, true, false, GL_CLAMP_TO_EDGE, GL_NEAREST);
+    }
+    /**
+     * Reverse a part of the array.
+     * @param array
+     * @param from
+     * @param to 
+     */
+    static void reverse(int[] array, int from, int to) {
+        int half = (to - from) / 2;
+        for (int i = 0; i < half; i++) {
+            int v = array[from + i];
+            array[from + i] = array[to - i - 1];
+            array[to - i - 1] = v;
+        }
+    }
+    /**
+     * Loads a texture from the given buffered image.
+     * @param sourceImage
+     * @param powerOf2
+     * @param mirrorX mirror in the X direction?
+     * @param wrapMode GL_CLAMP, GL_REPEAT, GL_CLAMP_TO_EDGE
+     * @param filterMode GL_NEAREST, GL_LINEAR
+     * @return 
+     */
+    public static Texture fromImage(BufferedImage sourceImage, boolean powerOf2, boolean mirrorX, int wrapMode, int filterMode) {
         Texture r = new Texture();
         BufferedImage img = sourceImage;
         
         r.originalWidth = sourceImage.getWidth();
         r.originalHeight = sourceImage.getHeight();
         
-        int w0 = power2Up(sourceImage.getWidth());
-        int h0 = power2Up(sourceImage.getHeight());
+        int w0 = sourceImage.getWidth();
+        int h0 = sourceImage.getHeight();
+        if (powerOf2) {
+            w0 = power2Up(w0);
+            h0 = power2Up(h0);
+        }
 
         r.textureWidth = w0;
         r.textureHeight = h0;
@@ -159,10 +232,16 @@ public class Texture {
             g2.dispose();
         }
         
-        int[] pixels = new int[img.getWidth() * img.getHeight()];
-        img.getRGB(0, 0, img.getWidth(), img.getHeight(), pixels, 0, img.getWidth());
-        ByteBuffer buffer = BufferUtils.createByteBuffer(img.getWidth() * img.getHeight() * 4);
+        int[] pixels = new int[w0 * h0];
+        img.getRGB(0, 0, w0, h0, pixels, 0, w0);
+        ByteBuffer buffer = BufferUtils.createByteBuffer(w0 * h0 * 4);
 
+        if (mirrorX) {
+            for (int j = 0; j < h0; j++) {
+                reverse(pixels, j * w0, (j + 1) * w0);
+            }
+        }
+        
         for (int px : pixels) {
             buffer.put((byte)((px >> 16) & 0xFF));
             buffer.put((byte)((px >> 8) & 0xFF));
@@ -174,11 +253,11 @@ public class Texture {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
         
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
         
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMode);
         
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.getWidth(), img.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
@@ -233,5 +312,13 @@ public class Texture {
             glVertex2i(x, y + ih);
         glEnd();
         stop();
+    }
+    /**
+     * Enable the usage of textures and blending.
+     */
+    public static void enable() {
+        glEnable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 }

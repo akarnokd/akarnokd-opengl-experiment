@@ -46,7 +46,6 @@ public final class G3D {
     public static void init(int w, int h, float fow) {
         try {
             Display.setDisplayMode(new DisplayMode(w, h));
-            Display.setTitle("Basic shader example");
             Display.create();
             
         } catch (LWJGLException ex) {
