@@ -26,9 +26,12 @@ public final class ObjectTracker {
     private ObjectTracker() {}
     private static final ConcurrentHashMap<Integer, Object> OBJECTS = new ConcurrentHashMap<>();
     private static final AtomicInteger IDS = new AtomicInteger(0xFF50_4000);
+    public static int newId() {
+        return IDS.getAndAdd(0x20);
+    }
     public static int add(Object o) {
         Objects.requireNonNull(o);
-        int id = IDS.getAndAdd(0x20);
+        int id = newId();
         OBJECTS.put(id, o);
         return id;
     }
