@@ -21,70 +21,11 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import static org.lwjgl.opengl.GL11.*;
-import org.lwjgl.util.glu.GLU;
-import org.lwjgl.util.glu.Sphere;
 import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  */
 public class SolarSystem {
-    static class Planet {
-        int handle;
-        Planet parent;
-        float orbit;
-        float angle;
-        float rotate;
-        float x;
-        float y;
-        float z;
-        public static Planet create(String file, float radius, int smoothness) {
-            Planet p = new Planet();
-            // GLU sphere requires a mirrored texture ?!
-            Texture tex = Texture.fromFile(file, false, true);
-        
-            Sphere sphere = new Sphere();
-            sphere.setDrawStyle(GLU.GLU_FILL);
-            sphere.setTextureFlag(true);
-            sphere.setNormals(GLU.GLU_SMOOTH);
-            sphere.setOrientation(GLU.GLU_OUTSIDE);
-
-            int sphereId = glGenLists(1);
-
-            glNewList(sphereId, GL_COMPILE);
-            tex.use();
-            sphere.draw(radius, smoothness, smoothness);
-            tex.stop();
-            glEndList();
-            
-            p.handle = sphereId;
-            
-            return p;
-        }
-        public void position(float x, float y, float z) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-        /** Compute the position from the orbital information. */
-        public void positionFromOrbit() {
-            x = parent.x + orbit * (float)Math.cos(angle);
-            y = parent.y + orbit * (float)Math.sin(angle);
-            z = parent.z;
-        }
-        public void draw() {
-            glCallList(handle);
-        }
-        /** Draw with full position and rotation information. */
-        public void drawFull() {
-            glPushMatrix();
-            
-            glTranslatef(x, y, z);
-            glRotatef(rotate, 0, 0, 1);
-            draw();
-            
-            glPopMatrix();
-        }
-    }
     static float scale = 0.2f;
     static boolean pause;
     static float speed = 0.01f;
@@ -131,6 +72,7 @@ public class SolarSystem {
         AtomicInteger idx = new AtomicInteger();
         
         planets.forEach(p -> {
+            p.orbit = 50;
             p.orbit = 50;
             p.angle = (float)Math.toRadians(split * idx.getAndAdd(1));
         });

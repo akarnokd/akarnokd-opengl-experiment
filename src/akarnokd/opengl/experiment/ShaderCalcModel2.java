@@ -15,13 +15,10 @@
   */
 package akarnokd.opengl.experiment;
 
-import java.nio.FloatBuffer;
 import java.util.concurrent.CancellationException;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import static org.lwjgl.opengl.GL11.*;
-import static java.lang.Math.*;
 
 /**
  *
@@ -29,6 +26,8 @@ import static java.lang.Math.*;
 public class ShaderCalcModel2 {
     public static void main(String[] args) {
         G3D.init(800, 600);
+        
+        System.out.println("OpenGL version " + glGetString(GL_VERSION));
         
         String vert = "#version 120\r\n"
                 + "uniform vec3 pos;"

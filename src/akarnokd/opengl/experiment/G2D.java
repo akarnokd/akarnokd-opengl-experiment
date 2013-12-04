@@ -149,4 +149,14 @@ public final class G2D {
             glVertex2i(x, y + height - 1);
         glEnd();
     }
+    /**
+     * Set the current color from an ARGB integer.
+     * @param argb 
+     */
+    public static void color(int argb) {
+        glColor4ub((byte)((argb >> 16) & 0xFF),
+                (byte)((argb >> 8) & 0xFF),
+                (byte)(argb & 0xFF),
+                (byte)((argb >> 24) & 0xFF));
+    }
 }
