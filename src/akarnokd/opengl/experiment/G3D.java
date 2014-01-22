@@ -44,6 +44,18 @@ public final class G3D {
      * @param fow 
      */
     public static void init(int w, int h, float fow) {
+        init(w, h, fow, 0.1f, 100f);
+    }
+    /**
+     * Initialize the windowed display with the given dimensions, field of view
+     * and near+far plane distances
+     * @param w
+     * @param h
+     * @param fow
+     * @param near
+     * @param far 
+     */
+    public static void init(int w, int h, float fow, float near, float far) {
         try {
             Display.setDisplayMode(new DisplayMode(w, h));
             Display.create();
@@ -55,7 +67,7 @@ public final class G3D {
         glViewport(0, 0, w, h);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        GLU.gluPerspective(45, (1f * w / h), 0.1f, 100f);
+        GLU.gluPerspective(45, (1f * w / h), near, far);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glShadeModel(GL_SMOOTH);

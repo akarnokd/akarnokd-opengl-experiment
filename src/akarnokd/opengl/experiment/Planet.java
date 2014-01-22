@@ -36,6 +36,7 @@ public class Planet {
     public int id;
     public float radius;
     public int smoothness;
+    public Texture tex;
     public static Planet create(String file, float radius, int smoothness) {
         Planet p = new Planet();
         p.id = ObjectTracker.add(p);
@@ -43,7 +44,7 @@ public class Planet {
         p.smoothness = smoothness;
         
         // GLU sphere requires a mirrored texture ?!
-        Texture tex = Texture.fromFile(file, false, true);
+        p.tex = Texture.fromFile(file, false, true);
 
         {
             Sphere sphere = new Sphere();
@@ -55,10 +56,10 @@ public class Planet {
             p.handle = GL11.glGenLists(1);
 
             GL11.glNewList(p.handle, GL11.GL_COMPILE);
-            tex.use();
+            p.tex.use();
             GL11.glColor4f(1, 1, 1, 1);
             sphere.draw(radius, smoothness, smoothness);
-            tex.stop();
+            p.tex.stop();
             GL11.glEndList();
         }
         {

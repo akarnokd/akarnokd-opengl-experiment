@@ -15,6 +15,8 @@
  */
 package akarnokd.opengl.experiment;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
@@ -27,6 +29,7 @@ import static org.lwjgl.opengl.ARBShaderObjects.*;
 import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
+import org.newdawn.slick.openal.StreamSound;
 
 /**
  * Load and compile a vertex and fragment shader program.
@@ -39,6 +42,28 @@ public class ShaderProgram {
     private ShaderProgram() { }
     /** The cached uniform locations. */
     private final Map<String, Integer> uniformCache = new HashMap<>();
+    public static ShaderProgram createFromResource(String vertex, String fragment) {
+        return create(() -> readResource(vertex), () -> readResource(fragment));
+    }
+    static String readResource(String name) {
+        try (InputStream in = ShaderProgram.class.getResourceAsStream(name)) {
+            byte[] buffer = new byte[8192];
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            while (true) {
+                int r = in.read(buffer);
+                if (r < 0) {
+                    break;
+                } else
+                    if (r > 0) {
+                        bout.write(buffer, 0, r);
+                    }
+            }
+            return bout.toString("UTF-8");
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return "";
+        }
+    }
     /**
      * Creates a shader program from the vertex and fragment shaders.
      * @param vertex

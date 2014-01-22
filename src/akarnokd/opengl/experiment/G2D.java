@@ -15,7 +15,9 @@
  */
 package akarnokd.opengl.experiment;
 
+import java.nio.FloatBuffer;
 import java.util.Objects;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -158,5 +160,16 @@ public final class G2D {
                 (byte)((argb >> 8) & 0xFF),
                 (byte)(argb & 0xFF),
                 (byte)((argb >> 24) & 0xFF));
+    }
+    /**
+     * Create a float buffer from varargs floats.
+     * @param floats
+     * @return 
+     */
+    public static FloatBuffer floats(float... floats) {
+        FloatBuffer b = BufferUtils.createFloatBuffer(floats.length);
+        b.put(floats);
+        b.flip();
+        return b;
     }
 }
