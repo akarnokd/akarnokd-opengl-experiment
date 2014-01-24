@@ -36,16 +36,21 @@ public final class G2D {
     public static void init(int w, int h) {
         try {
             Display.setDisplayMode(new DisplayMode(w, h));
-            Display.setTitle("Basic shader example");
             Display.create();
-            
         } catch (LWJGLException ex) {
             throw new RuntimeException(ex);
         }
+        setOrthogonal();
+    }    
+    public static void setOrthogonal() {
+        int w = Display.getWidth();
+        int h = Display.getHeight();
+        
         glEnable(GL_TEXTURE_2D);
         glShadeModel(GL_SMOOTH);
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_LIGHTING);
+        glDisable(GL_CULL_FACE);
         
         
         glClearColor(0, 0, 0, 0);
@@ -61,7 +66,7 @@ public final class G2D {
         glLoadIdentity();
         glOrtho(0, w, h, 0, 1, -1);
         glMatrixMode(GL_MODELVIEW);
-    }    
+    }
     /**
      * Run a rendering loop.
      * @param fps the frames per second

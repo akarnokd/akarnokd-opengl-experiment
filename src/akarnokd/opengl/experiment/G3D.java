@@ -1,18 +1,18 @@
-/**
- * Copyright 2013 David Karnok
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
+ /**
+  * Copyright 2013 David Karnok
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+  * use this file except in compliance with the License. You may obtain a copy of
+  * the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  * License for the specific language governing permissions and limitations under
+  * the License.
+  */
 package akarnokd.opengl.experiment;
 
 import java.util.Objects;
@@ -32,7 +32,7 @@ public final class G3D {
     /**
      * Initialize a windowed display with the given dimensions and default field-of-view.
      * @param w
-     * @param h 
+     * @param h
      */
     public static void init(int w, int h) {
         init(w, h, 45);
@@ -41,7 +41,7 @@ public final class G3D {
      * Initialize a windowed display with the given dimensions and field-of-view.
      * @param w
      * @param h
-     * @param fow 
+     * @param fow
      */
     public static void init(int w, int h, float fow) {
         init(w, h, fow, 0.1f, 100f);
@@ -53,7 +53,7 @@ public final class G3D {
      * @param h
      * @param fow
      * @param near
-     * @param far 
+     * @param far
      */
     public static void init(int w, int h, float fow, float near, float far) {
         try {
@@ -63,11 +63,17 @@ public final class G3D {
         } catch (LWJGLException ex) {
             throw new RuntimeException(ex);
         }
+        setPerspective(fow, near, far);
+        
+    }
+    public static void setPerspective(float fow, float near, float far) {
+        int w = Display.getWidth();
+        int h = Display.getHeight();
         
         glViewport(0, 0, w, h);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        GLU.gluPerspective(45, (1f * w / h), near, far);
+        GLU.gluPerspective(fow, (1f * w / h), near, far);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glShadeModel(GL_SMOOTH);
@@ -96,11 +102,12 @@ public final class G3D {
         Objects.requireNonNull(cleanup);
         try {
             while (!Display.isCloseRequested()) {
+                glMatrixMode(GL_MODELVIEW);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 glLoadIdentity();
-
+                
                 body.run();
-
+                
                 Display.update();
                 Display.sync(fps);
             }
